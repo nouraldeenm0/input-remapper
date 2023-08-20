@@ -98,10 +98,7 @@ def if_group_selected(func):
     """Decorate a function to only execute if a device is selected."""
     # this should only happen if no device was found at all
     def wrapped(self, *args, **kwargs):
-        if self.group is None:
-            return True  # work with timeout_add
-
-        return func(self, *args, **kwargs)
+        return True if self.group is None else func(self, *args, **kwargs)
 
     return wrapped
 
@@ -452,7 +449,7 @@ class UserInterface:
 
             max_length = 45
             if len(message) > max_length:
-                message = message[: max_length - 3] + "..."
+                message = f"{message[:max_length - 3]}..."
 
             status_bar.push(context_id, message)
             status_bar.set_tooltip_text(tooltip)
@@ -483,10 +480,9 @@ class UserInterface:
 
         new_name = rename_preset(self.group.name, self.preset_name, new_name)
 
-        # if the old preset was being autoloaded, change the
-        # name there as well
-        is_autoloaded = global_config.is_autoloaded(self.group.key, self.preset_name)
-        if is_autoloaded:
+        if is_autoloaded := global_config.is_autoloaded(
+            self.group.key, self.preset_name
+        ):
             global_config.set_autoload_preset(self.group.key, new_name)
 
         self.get("preset_name_input").set_text("")

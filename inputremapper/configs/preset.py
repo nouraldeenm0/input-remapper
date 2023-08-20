@@ -287,10 +287,7 @@ def get_available_preset_name(group_name, preset="new preset", copy=False):
 
     # find a name that is not already taken
     if os.path.exists(get_preset_path(group_name, preset)):
-        # if there already is a trailing number, increment it instead of
-        # adding another one
-        match = re.match(r"^(.+) (\d+)$", preset)
-        if match:
+        if match := re.match(r"^(.+) (\d+)$", preset):
             preset = match[1]
             i = int(match[2]) + 1
         else:

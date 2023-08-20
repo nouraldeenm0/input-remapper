@@ -97,10 +97,7 @@ class AutoloadHistory:
         # seconds in my case.
         now = time.time()
         threshold = 15  # seconds
-        if self._autoload_history[group_key][0] < now - threshold:
-            return True
-
-        return False
+        return self._autoload_history[group_key][0] < now - threshold
 
 
 def remove_timeout(func):
@@ -399,7 +396,7 @@ class Daemon:
 
         logger.info("Autoloading for all devices")
 
-        if len(autoload_presets) == 0:
+        if not autoload_presets:
             logger.error("No presets configured to autoload")
             return
 

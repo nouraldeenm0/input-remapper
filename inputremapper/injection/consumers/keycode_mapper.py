@@ -319,9 +319,7 @@ class KeycodeMapper(Consumer):
     def macro_write(self, target_uinput):
         def f(ev_type, code, value):
             """Handler for macros."""
-            logger.debug(
-                f"Macro sending %s to %s", (ev_type, code, value), target_uinput
-            )
+            logger.debug("Macro sending %s to %s", (ev_type, code, value), target_uinput)
             global_uinputs.write((ev_type, code, value), target_uinput)
 
         return f
@@ -455,8 +453,6 @@ class KeycodeMapper(Consumer):
                         return
                     except inputremapper.exceptions.Error:
                         logger.debug_key(key, "could not map")
-                        pass
-
                 if forward:
                     # forward the release event
                     logger.debug_key((original_tuple,), "forwarding release")
@@ -538,8 +534,6 @@ class KeycodeMapper(Consumer):
                     return
                 except inputremapper.exceptions.Error:
                     logger.debug_key(key, "could not map")
-                    pass
-
             if forward:
                 logger.debug_key((original_tuple,), "forwarding")
                 self.forward(original_tuple)

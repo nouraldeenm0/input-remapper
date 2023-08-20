@@ -30,8 +30,8 @@ class TestData(unittest.TestCase):
     def test_data_editable(self):
         path = os.getcwd()
         pkg_resources.require("input-remapper")[0].location = path
-        self.assertEqual(get_data_path(), path + "/data/")
-        self.assertEqual(get_data_path("a"), path + "/data/a")
+        self.assertEqual(get_data_path(), f"{path}/data/")
+        self.assertEqual(get_data_path("a"), f"{path}/data/a")
 
     def test_data_usr(self):
         path = "/usr/some/where/python3.8/dist-packages/"

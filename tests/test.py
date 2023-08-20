@@ -79,7 +79,7 @@ def join_children():
     i = 0
     time.sleep(EVENT_READ_TIMEOUT)
     children = this.children(recursive=True)
-    while len([c for c in children if c.status() != "zombie"]) > 0:
+    while [c for c in children if c.status() != "zombie"]:
         for child in children:
             if i > 10:
                 child.kill()
@@ -283,8 +283,7 @@ def new_event(type, code, value, timestamp=None, offset=0):
 
     sec = int(timestamp)
     usec = timestamp % 1 * 1000000
-    event = InputEvent(sec, usec, type, code, value)
-    return event
+    return InputEvent(sec, usec, type, code, value)
 
 
 def patch_paths():
@@ -326,7 +325,7 @@ class InputDevice:
         return self.fd
 
     def log(self, key, msg):
-        logger.info(f'%s "%s" "%s" %s', msg, self.name, self.path, key)
+        logger.info('%s "%s" "%s" %s', msg, self.name, self.path, key)
 
     def absinfo(self, *args):
         raise Exception("Ubuntus version of evdev doesn't support .absinfo")
@@ -568,7 +567,7 @@ def quick_cleanup(log=True):
 
     try:
         reader.terminate()
-    except (BrokenPipeError, OSError):
+    except OSError:
         pass
 
     try:

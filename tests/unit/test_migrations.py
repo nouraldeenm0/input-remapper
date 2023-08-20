@@ -170,15 +170,14 @@ class TestMigrations(unittest.TestCase):
                 {
                     "mapping": {
                         f"{EV_KEY},1": "a",
-                        f"{EV_KEY}, 2, 1": "BTN_B",  # can be mapped to "gamepad"
-                        f"{EV_KEY}, 3, 1": "BTN_1",  # can not be mapped
+                        f"{EV_KEY}, 2, 1": "BTN_B",
+                        f"{EV_KEY}, 3, 1": "BTN_1",
                         f"{EV_KEY}, 4, 1": ("a", "foo"),
                         f"{EV_ABS},{ABS_HAT0X},-1": "b",
                         f"{EV_ABS},1,1+{EV_ABS},2,-1+{EV_ABS},3,1": "c",
-                        # ignored because broken
-                        f"3,1,1,2": "e",
-                        f"3": "e",
-                        f",,+3,1,2": "g",
+                        "3,1,1,2": "e",
+                        "3": "e",
+                        ",,+3,1,2": "g",
                         f"": "h",
                     }
                 },

@@ -446,11 +446,7 @@ class Editor:
         buffer = self.get("code_editor").get_buffer()
         symbol = buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter(), True)
 
-        if symbol == SET_KEY_FIRST:
-            # not configured yet
-            return ""
-
-        return symbol
+        return "" if symbol == SET_KEY_FIRST else symbol
 
     def set_target_selection(self, target):
         selector = self.get_target_selector()
@@ -500,7 +496,7 @@ class Editor:
         """Blocks until the user decided about an action."""
         confirm_delete = self.get("confirm-delete")
 
-        text = f"Are you sure to delete this mapping?"
+        text = "Are you sure to delete this mapping?"
         self.get("confirm-delete-label").set_text(text)
 
         confirm_delete.show()

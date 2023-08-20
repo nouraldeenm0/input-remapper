@@ -81,11 +81,7 @@ class ConfigBase:
         """
         chunks = path.copy() if isinstance(path, list) else path.split(".")
 
-        if config is None:
-            child = self._config
-        else:
-            child = config
-
+        child = self._config if config is None else config
         while True:
             chunk = chunks.pop(0)
             parent = child

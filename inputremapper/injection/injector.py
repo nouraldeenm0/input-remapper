@@ -64,11 +64,9 @@ def is_in_capabilities(
     combination: EventCombination, capabilities: CapabilitiesDict
 ) -> bool:
     """Are this combination or one of its sub keys in the capabilities?"""
-    for event in combination:
-        if event.code in capabilities.get(event.type, []):
-            return True
-
-    return False
+    return any(
+        event.code in capabilities.get(event.type, []) for event in combination
+    )
 
 
 def get_udev_name(name: str, suffix: str) -> str:
@@ -76,8 +74,7 @@ def get_udev_name(name: str, suffix: str) -> str:
     max_len = 80  # based on error messages
     remaining_len = max_len - len(DEV_NAME) - len(suffix) - 2
     middle = name[:remaining_len]
-    name = f"{DEV_NAME} {middle} {suffix}"
-    return name
+    return f"{DEV_NAME} {middle} {suffix}"
 
 
 class Injector(multiprocessing.Process):
@@ -130,12 +127,11 @@ class Injector(multiprocessing.Process):
         # slowly figure out what is going on
         alive = self.is_alive()
 
-        if self._state == UNKNOWN and not alive:
-            # didn't start yet
-            return self._state
+        if self._state == UNKNOWN:
+            if not alive:
+                # didn't start yet
+                return self._state
 
-        # if it is alive, it is definitely at least starting up
-        if self._state == UNKNOWN and alive:
             self._state = STARTING
 
         # if there is a message available, it might have finished starting up
@@ -186,7 +182,7 @@ class Injector(multiprocessing.Process):
         """
         try:
             device = evdev.InputDevice(path)
-        except (FileNotFoundError, OSError):
+        except OSError:
             logger.error('Could not find "%s"', path)
             return None
 
@@ -357,7 +353,7 @@ class Injector(multiprocessing.Process):
         except OSError as error:
             logger.error("Failed to run injector coroutines: %s", str(error))
 
-        if len(coroutines) > 0:
+        if coroutines:
             # expected when stop_injecting is called,
             # during normal operation as well as tests this point is not
             # reached otherwise.

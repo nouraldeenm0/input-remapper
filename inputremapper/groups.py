@@ -101,10 +101,7 @@ def _is_gamepad(capabilities):
     abs_capabilities = capabilities.get(EV_ABS, [])
     if evdev.ecodes.ABS_X not in abs_capabilities:
         return False
-    if evdev.ecodes.ABS_Y not in abs_capabilities:
-        return False
-
-    return True
+    return evdev.ecodes.ABS_Y in abs_capabilities
 
 
 def _is_mouse(capabilities):
@@ -113,41 +110,32 @@ def _is_mouse(capabilities):
     # UInput recognized as mouse
 
     # mouse movements
-    if not REL_X in capabilities.get(EV_REL, []):
+    if REL_X not in capabilities.get(EV_REL, []):
         return False
-    if not REL_Y in capabilities.get(EV_REL, []):
+    if REL_Y not in capabilities.get(EV_REL, []):
         return False
 
     # at least the vertical mouse wheel
-    if not REL_WHEEL in capabilities.get(EV_REL, []):
+    if REL_WHEEL not in capabilities.get(EV_REL, []):
         return False
 
     # and a mouse click button
-    if not BTN_LEFT in capabilities.get(EV_KEY, []):
-        return False
-
-    return True
+    return BTN_LEFT in capabilities.get(EV_KEY, [])
 
 
 def _is_graphics_tablet(capabilities):
     """Check if the capabilities represent those of a graphics tablet."""
-    if BTN_STYLUS in capabilities.get(EV_KEY, []):
-        return True
-    return False
+    return BTN_STYLUS in capabilities.get(EV_KEY, [])
 
 
 def _is_touchpad(capabilities):
     """Check if the capabilities represent those of a touchpad."""
-    if ABS_MT_POSITION_X in capabilities.get(EV_ABS, []):
-        return True
-    return False
+    return ABS_MT_POSITION_X in capabilities.get(EV_ABS, [])
 
 
 def _is_keyboard(capabilities):
     """Check if the capabilities represent those of a keyboard."""
-    if KEY_A in capabilities.get(EV_KEY, []):
-        return True
-    return False
+    return KEY_A in capabilities.get(EV_KEY, [])
 
 
 def _is_camera(capabilities):
@@ -181,12 +169,7 @@ def classify(device):
     if _is_camera(capabilities):
         return CAMERA
 
-    if _is_keyboard(capabilities):
-        # very low in the chain to avoid classifying most devices
-        # as keyboard, because there are many with ev_key capabilities
-        return KEYBOARD
-
-    return UNKNOWN
+    return KEYBOARD if _is_keyboard(capabilities) else UNKNOWN
 
 
 DENYLIST = [".*Yubico.*YubiKey.*", "Eee PC WMI hotkeys"]
@@ -199,11 +182,9 @@ def is_denylisted(device):
     ----------
     device : InputDevice
     """
-    for name in DENYLIST:
-        if re.match(name, str(device.name), re.IGNORECASE):
-            return True
-
-    return False
+    return any(
+        re.match(name, str(device.name), re.IGNORECASE) for name in DENYLIST
+    )
 
 
 def get_unique_key(device):
@@ -302,8 +283,7 @@ class _Group:
     @classmethod
     def loads(cls, serialized):
         """Load a serialized representation."""
-        group = cls(**json.loads(serialized))
-        return group
+        return cls(**json.loads(serialized))
 
     def __repr__(self):
         return f"Group({self.key})"

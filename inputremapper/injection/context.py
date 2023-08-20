@@ -98,7 +98,7 @@ class Context:
                 for permutation in combination.get_permutations():
                     macros[permutation] = (macro, output[1])
 
-        if len(macros) == 0:
+        if not macros:
             logger.debug("No macros configured")
 
         return macros

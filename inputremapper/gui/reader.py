@@ -213,10 +213,7 @@ class Reader:
         """Get a EventCombination object of the current keyboard state."""
         unreleased = list(self._unreleased.values())
 
-        if len(unreleased) == 0:
-            return None
-
-        return EventCombination.from_events(unreleased)
+        return None if not unreleased else EventCombination.from_events(unreleased)
 
     def _release(self, type_code):
         """Modify the state to recognize the releasing of the key."""

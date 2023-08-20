@@ -187,10 +187,7 @@ def systemd_finished():
         # on certain installations
         return True
 
-    if 'finished' in systemd_analyze.stdout.decode():
-        return True
-
-    return False
+    return 'finished' in systemd_analyze.stdout.decode()
 
 
 def main(options):
@@ -220,18 +217,17 @@ def main(options):
         logger.warning('Skipping autoload command without a logged in user')
         return
 
-    if options.command is not None:
-        if options.command in INTERNALS:
-            internals(options)
-        elif options.command in COMMANDS:
-            from inputremapper.daemon import Daemon
-            daemon = Daemon.connect(fallback=False)
-            communicate(options, daemon)
-        else:
-            logger.error('Unknown command "%s"', options.command)
-    else:
+    if options.command is None:
         utils(options)
 
+    elif options.command in INTERNALS:
+        internals(options)
+    elif options.command in COMMANDS:
+        from inputremapper.daemon import Daemon
+        daemon = Daemon.connect(fallback=False)
+        communicate(options, daemon)
+    else:
+        logger.error('Unknown command "%s"', options.command)
     if options.command:
         logger.info('Done')
 

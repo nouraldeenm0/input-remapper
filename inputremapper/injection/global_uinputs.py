@@ -122,10 +122,7 @@ class GlobalUInputs:
         ----------
         name : uniqe name of the uinput device
         """
-        if name in self.devices.keys():
-            return self.devices[name]
-
-        return None
+        return self.devices[name] if name in self.devices.keys() else None
 
 
 global_uinputs = GlobalUInputs()

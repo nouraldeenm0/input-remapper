@@ -89,10 +89,7 @@ class EventCombination(Tuple[InputEvent]):
 
     def contains_type_and_code(self, type, code) -> bool:
         """if a InputEvent contains the type and code"""
-        for event in self:
-            if event.type_and_code == (type, code):
-                return True
-        return False
+        return any(event.type_and_code == (type, code) for event in self)
 
     def is_problematic(self):
         """Is this combination going to work properly on all systems?"""
@@ -117,11 +114,10 @@ class EventCombination(Tuple[InputEvent]):
         if len(self) <= 2:
             return [self]
 
-        permutations = []
-        for permutation in itertools.permutations(self[:-1]):
-            permutations.append(EventCombination(*permutation, self[-1]))
-
-        return permutations
+        return [
+            EventCombination(*permutation, self[-1])
+            for permutation in itertools.permutations(self[:-1])
+        ]
 
     def json_str(self) -> str:
         return "+".join([event.json_str() for event in self])

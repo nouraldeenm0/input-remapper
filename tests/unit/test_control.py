@@ -197,8 +197,12 @@ class TestControl(unittest.TestCase):
         presets = ["bar123", "bar2"]
         config_dir = os.path.join(tmp, "qux", "quux")
         paths = [
-            os.path.join(config_dir, "presets", device_names[0], presets[0] + ".json"),
-            os.path.join(config_dir, "presets", device_names[1], presets[1] + ".json"),
+            os.path.join(
+                config_dir, "presets", device_names[0], f"{presets[0]}.json"
+            ),
+            os.path.join(
+                config_dir, "presets", device_names[1], f"{presets[1]}.json"
+            ),
         ]
 
         Preset().save(paths[0])

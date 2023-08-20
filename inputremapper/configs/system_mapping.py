@@ -168,11 +168,14 @@ class SystemMapping:
 
     def get_name(self, code):
         """Get the first matching name for the code."""
-        for entry in self._xmodmap:
-            if int(entry[0]) - XKB_KEYCODE_OFFSET == code:
-                return entry[1].split()[0]
-
-        return None
+        return next(
+            (
+                entry[1].split()[0]
+                for entry in self._xmodmap
+                if int(entry[0]) - XKB_KEYCODE_OFFSET == code
+            ),
+            None,
+        )
 
     def _find_legit_mappings(self):
         """From the parsed xmodmap list find usable symbols and their codes."""

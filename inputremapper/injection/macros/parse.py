@@ -127,7 +127,7 @@ def _extract_args(inner):
         # ignore commas inside child macros
         if char == "(":
             brackets += 1
-        if char == ")":
+        elif char == ")":
             brackets -= 1
         if char == "," and brackets == 0:
             # , potentially starts another parameter, but only if
@@ -224,10 +224,7 @@ def _parse_recurse(code, context, macro_instance=None, depth=0):
         return Variable(code.split("$", 1)[1])
 
     if _is_number(code):
-        if "." in code:
-            code = float(code)
-        else:
-            code = int(code)
+        code = float(code) if "." in code else int(code)
         logger.debug("%snumber %s", space, code)
         return code
 
@@ -261,13 +258,13 @@ def _parse_recurse(code, context, macro_instance=None, depth=0):
             key, value = _split_keyword_arg(param)
             parsed = _parse_recurse(value.strip(), context, None, depth + 1)
             if key is None:
-                if len(keyword_args) > 0:
+                if keyword_args:
                     msg = f'Positional argument "{key}" follows keyword argument'
                     raise SyntaxError(msg)
                 positional_args.append(parsed)
+            elif key in keyword_args:
+                raise SyntaxError(f'The "{key}" argument was specified twice')
             else:
-                if key in keyword_args:
-                    raise SyntaxError(f'The "{key}" argument was specified twice')
                 keyword_args[key] = parsed
 
         logger.debug(
@@ -343,10 +340,7 @@ def remove_whitespaces(macro, delimiter='"'):
     result = ""
     for i, chunk in enumerate(macro.split(delimiter)):
         # every second chunk is inside string quotes
-        if i % 2 == 0:
-            result += re.sub(r"\s", "", chunk)
-        else:
-            result += chunk
+        result += re.sub(r"\s", "", chunk) if i % 2 == 0 else chunk
         result += delimiter
 
     # one extra delimiter was added
