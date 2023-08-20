@@ -142,11 +142,7 @@ def _resolve(argument, allowed_types=None):
     if isinstance(argument, Variable):
         value = argument.resolve()
         logger.debug('"%s" is "%s"', argument, value)
-        if allowed_types:
-            return _type_check(value, allowed_types)
-        else:
-            return value
-
+        return _type_check(value, allowed_types) if allowed_types else value
     return argument
 
 
@@ -289,7 +285,7 @@ class Macro:
                 if asyncio.iscoroutine(coroutine):
                     await coroutine
             except Exception as e:
-                logger.error(f'Macro "%s" failed: %s', self.code, e)
+                logger.error('Macro "%s" failed: %s', self.code, e)
                 break
 
         # done

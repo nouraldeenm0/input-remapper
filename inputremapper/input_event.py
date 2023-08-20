@@ -45,11 +45,9 @@ class InputEvent:
         return hash((self.type, self.code, self.value))
 
     def __eq__(self, other):
-        if isinstance(other, InputEvent) or isinstance(other, evdev.InputEvent):
+        if isinstance(other, (InputEvent, evdev.InputEvent)):
             return self.event_tuple == (other.type, other.code, other.value)
-        if isinstance(other, tuple):
-            return self.event_tuple == other
-        return False
+        return self.event_tuple == other if isinstance(other, tuple) else False
 
     @classmethod
     def __get_validators__(cls):

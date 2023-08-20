@@ -127,8 +127,6 @@ class RootHelper:
 
         This blocks forever until it discovers a new command on the socket.
         """
-        rlist = {}
-
         if self.group is None:
             logger.error("group is None")
             return
@@ -145,13 +143,11 @@ class RootHelper:
             if evdev.ecodes.EV_KEY in device.capabilities():
                 virtual_devices.append(device)
 
-        if len(virtual_devices) == 0:
+        if not virtual_devices:
             logger.debug('No interesting device for "%s"', self.group.key)
             return
 
-        for device in virtual_devices:
-            rlist[device.fd] = device
-
+        rlist = {device.fd: device for device in virtual_devices}
         logger.debug(
             'Starting reading keycodes from "%s"',
             '", "'.join([device.name for device in virtual_devices]),
@@ -176,8 +172,7 @@ class RootHelper:
                 device = rlist[fd]
 
                 try:
-                    event = device.read_one()
-                    if event:
+                    if event := device.read_one():
                         self._send_event(event, device)
                 except OSError:
                     logger.debug('Device "%s" disappeared', device.path)

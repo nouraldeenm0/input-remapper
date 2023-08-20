@@ -100,10 +100,7 @@ class SharedDict:
         """Check if the manager process is running."""
         self.pipe[1].send(("ping",))
         select.select([self.pipe[1]], [], [], timeout or self._timeout)
-        if self.pipe[1].poll():
-            return self.pipe[1].recv() == "pong"
-
-        return False
+        return self.pipe[1].recv() == "pong" if self.pipe[1].poll() else False
 
     def __setitem__(self, key, value):
         self.pipe[1].send(("set", key, value))

@@ -79,10 +79,7 @@ def sign(value):
     if value > 0:
         return 1
 
-    if value < 0:
-        return -1
-
-    return 0
+    return -1 if value < 0 else 0
 
 
 def classify_action(event, abs_range=None):
@@ -93,28 +90,27 @@ def classify_action(event, abs_range=None):
     of 1 is usually noise or from touching the joystick very gently and considered in
     resting position.
     """
-    if event.type == EV_ABS and event.code in JOYSTICK:
-        if abs_range is None:
-            logger.error(
-                "Got %s, but abs_range is %s",
-                (event.type, event.code, event.value),
-                abs_range,
-            )
-            return event.value
+    if event.type != EV_ABS or event.code not in JOYSTICK:
+        # non-joystick abs events (triggers) usually start at 0 and go up to 255,
+        # but anything that is > 0 was safe to be treated as pressed so far
 
-        # center is the value of the resting position
-        center = (abs_range[1] + abs_range[0]) / 2
-        # normalizer is the maximum possible value after centering
-        normalizer = (abs_range[1] - abs_range[0]) / 2
+        return sign(event.value)
+    if abs_range is None:
+        logger.error(
+            "Got %s, but abs_range is %s",
+            (event.type, event.code, event.value),
+            abs_range,
+        )
+        return event.value
 
-        threshold = normalizer * JOYSTICK_BUTTON_THRESHOLD
-        triggered = abs(event.value - center) > threshold
-        return sign(event.value - center) if triggered else 0
+    # center is the value of the resting position
+    center = (abs_range[1] + abs_range[0]) / 2
+    # normalizer is the maximum possible value after centering
+    normalizer = (abs_range[1] - abs_range[0]) / 2
 
-    # non-joystick abs events (triggers) usually start at 0 and go up to 255,
-    # but anything that is > 0 was safe to be treated as pressed so far
-
-    return sign(event.value)
+    threshold = normalizer * JOYSTICK_BUTTON_THRESHOLD
+    triggered = abs(event.value - center) > threshold
+    return sign(event.value - center) if triggered else 0
 
 
 def is_key_down(action):
@@ -166,34 +162,26 @@ def should_map_as_btn(event, preset, gamepad):
             # the intuos 5 spams those with every event
             return False
 
-        if event.code in JOYSTICK:
-            if not gamepad:
-                return False
-
-            l_purpose = preset.get("gamepad.joystick.left_purpose")
-            r_purpose = preset.get("gamepad.joystick.right_purpose")
-
-            if event.code in [ABS_X, ABS_Y] and l_purpose == BUTTONS:
-                return True
-
-            if event.code in [ABS_RX, ABS_RY] and r_purpose == BUTTONS:
-                return True
-        else:
+        if event.code not in JOYSTICK:
             # for non-joystick buttons just always offer mapping them to
             # buttons
             return True
 
+        if not gamepad:
+            return False
+
+        l_purpose = preset.get("gamepad.joystick.left_purpose")
+        r_purpose = preset.get("gamepad.joystick.right_purpose")
+
+        if event.code in [ABS_X, ABS_Y] and l_purpose == BUTTONS:
+            return True
+
+        if event.code in [ABS_RX, ABS_RY] and r_purpose == BUTTONS:
+            return True
     if is_wheel(event):
         return True
 
-    if event.type == EV_KEY:
-        # usually all EV_KEY events are allright, except for
-        if event.code == evdev.ecodes.BTN_TOUCH:
-            return False
-
-        return True
-
-    return False
+    return event.code != evdev.ecodes.BTN_TOUCH if event.type == EV_KEY else False
 
 
 def get_abs_range(device, code=ABS_X):
@@ -218,7 +206,7 @@ def get_abs_range(device, code=ABS_X):
         )
     ]
 
-    if len(absinfo) == 0:
+    if not absinfo:
         logger.warning(
             'Failed to get ABS info of "%s" for key %d: %s', device, code, capabilities
         )

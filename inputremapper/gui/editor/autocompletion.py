@@ -70,10 +70,7 @@ def get_incomplete_function_name(iter):
     #  foo
     match = re.match(rf"(?:{FUNCTION_CHAIN}|{PARAMETER}|^)(\w+)$", left_text)
 
-    if match is None:
-        return ""
-
-    return match[1]
+    return "" if match is None else match[1]
 
 
 def get_incomplete_parameter(iter):
@@ -87,12 +84,9 @@ def get_incomplete_parameter(iter):
     #  foo
     #  bar + foo
     match = re.match(rf"(?:{PARAMETER}|^)(\w+)$", left_text)
-    logger.debug(f"get_incomplete_parameter text: %s match: %s", left_text, match)
+    logger.debug("get_incomplete_parameter text: %s match: %s", left_text, match)
 
-    if match is None:
-        return None
-
-    return match[1]
+    return None if match is None else match[1]
 
 
 def propose_symbols(text_iter, codes):

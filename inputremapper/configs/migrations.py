@@ -46,9 +46,9 @@ def all_presets():
         if not folder.is_dir():
             continue
 
-        for preset in folder.iterdir():
-            if preset.suffix == ".json":
-                presets.append(preset)
+        presets.extend(
+            preset for preset in folder.iterdir() if preset.suffix == ".json"
+        )
     return presets
 
 

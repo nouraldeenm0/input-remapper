@@ -152,10 +152,7 @@ class Base:
         """
         self._receive_new_messages()
 
-        if len(self._unread) == 0:
-            return None
-
-        return self._unread.pop(0)
+        return None if len(self._unread) == 0 else self._unread.pop(0)
 
     def poll(self):
         """Check if a message to read is available."""
@@ -268,19 +265,12 @@ class _Server(Base):
             existing_servers[self._path] = self
 
         incoming = len(select.select([self.socket], [], [], 0)[0]) != 0
-        if not incoming and self.connection is None:
-            # no existing connection, no client attempting to connect
-            return False
-
-        if not incoming and self.connection is not None:
-            # old connection
-            return True
-
-        if incoming:
-            logger.debug('Incoming connection: "%s"', self._path)
-            connection = self.socket.accept()[0]
-            self.connection = connection
-            self.connection.setblocking(False)
+        if not incoming:
+            return self.connection is not None
+        logger.debug('Incoming connection: "%s"', self._path)
+        connection = self.socket.accept()[0]
+        self.connection = connection
+        self.connection.setblocking(False)
 
         return True
 

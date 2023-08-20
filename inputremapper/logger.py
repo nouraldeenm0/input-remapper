@@ -138,7 +138,7 @@ class ColorfulFormatter(logging.Formatter):
 
     def _word_to_color(self, word):
         """Convert a word to a 8bit ansi color code."""
-        digit_sum = sum([ord(char) for char in word])
+        digit_sum = sum(ord(char) for char in word)
         index = digit_sum % len(self.allowed_colors)
         return self.allowed_colors[index]
 

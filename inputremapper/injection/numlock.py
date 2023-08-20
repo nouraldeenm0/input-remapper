@@ -40,10 +40,7 @@ def is_numlock_on():
         ).decode()
         num_lock_status = re.search(r"Num Lock:\s+(.+?)\s", xset_q)
 
-        if num_lock_status is not None:
-            return num_lock_status[1] == "on"
-
-        return False
+        return num_lock_status[1] == "on" if num_lock_status is not None else False
     except (FileNotFoundError, subprocess.CalledProcessError):
         # tty
         return None

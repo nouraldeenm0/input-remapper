@@ -51,9 +51,7 @@ WHEEL_THRESHOLD = 0.15
 
 def abs_max(value_1, value_2):
     """Get the value with the higher abs value."""
-    if abs(value_1) > abs(value_2):
-        return value_1
-    return value_2
+    return value_1 if abs(value_1) > abs(value_2) else value_2
 
 
 class JoystickToMouse(Consumer):
@@ -187,15 +185,12 @@ class JoystickToMouse(Consumer):
 
         purposes = [MOUSE, WHEEL]
         left_purpose = self.context.left_purpose
-        right_purpose = self.context.right_purpose
-
         if event.code in (ABS_X, ABS_Y) and left_purpose in purposes:
             return True
 
-        if event.code in (ABS_RX, ABS_RY) and right_purpose in purposes:
-            return True
+        right_purpose = self.context.right_purpose
 
-        return False
+        return event.code in (ABS_RX, ABS_RY) and right_purpose in purposes
 
     async def notify(self, event):
         if event.type == EV_ABS and event.code in self.abs_state:
@@ -235,7 +230,7 @@ class JoystickToMouse(Consumer):
 
             abs_values = self.get_abs_values()
 
-            if len([val for val in abs_values if not -1 <= val <= 1]) > 0:
+            if [val for val in abs_values if not -1 <= val <= 1]:
                 logger.error("Inconsistent values: %s", abs_values)
                 continue
 
